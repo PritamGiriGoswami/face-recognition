@@ -1,6 +1,56 @@
+# Environment files
+.env
+.env.local
+
+# Python
 __pycache__/
 *.py[cod]
+
+# Logs
+*.log
+
+# Runtime / misc
 .runtime/
 backend_api*.log
 python_version_bg.log
-attendance_v2.db
+
+# Database
+*.db
+*.sqlite3
+attendance*.db
+
+# Face datasets / models (never commit)
+dataset/
+faces/
+trained_model/
+encodings/
+uploads/
+
+# VS Code
+.vscode/
+
+# Build folders
+build/
+dist/
+
+# Flutter/Android
+.gradle/
+.idea/
+android/.gradle/
+android/local.properties
+
+# APK files
+*.apk
+
+# Node modules
+node_modules/
+
+# Temporary / cache
+*.tmp
+*.temp
+.cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
