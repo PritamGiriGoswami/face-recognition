@@ -51,7 +51,8 @@ class GlassmorphismTheme extends ThemeExtension<GlassmorphismTheme> {
   });
 
   @override
-  GlassmorphismTheme copyWith({double? blurSigma, double? opacity, BorderRadius? borderRadius}) {
+  GlassmorphismTheme copyWith(
+      {double? blurSigma, double? opacity, BorderRadius? borderRadius}) {
     return GlassmorphismTheme(
       blurSigma: blurSigma ?? this.blurSigma,
       opacity: opacity ?? this.opacity,
@@ -62,9 +63,13 @@ class GlassmorphismTheme extends ThemeExtension<GlassmorphismTheme> {
   @override
   GlassmorphismTheme lerp(ThemeExtension<GlassmorphismTheme>? other, double t) {
     if (other is! GlassmorphismTheme) return this;
+
+    // Avoid reliance on lerpDouble (not available in some Flutter versions).
+    double lerpVal(double a, double b, double t) => a + (b - a) * t;
+
     return GlassmorphismTheme(
-      blurSigma: lerpDouble(blurSigma, other.blurSigma, t)!,
-      opacity: lerpDouble(opacity, other.opacity, t)!,
+      blurSigma: lerpVal(blurSigma, other.blurSigma, t),
+      opacity: lerpVal(opacity, other.opacity, t),
       borderRadius: BorderRadius.lerp(borderRadius, other.borderRadius, t)!,
     );
   }

@@ -235,7 +235,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('${format.toUpperCase()} report saved: $path')),
+            content: Text('${format.toUpperCase()} report saved: $path'),
+          ),
         );
       }
     } catch (e) {
@@ -1104,9 +1105,9 @@ class _SettingsTabState extends State<_SettingsTab> {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   _errorMessage!,
@@ -1747,8 +1748,10 @@ class _LiveCameraTabState extends State<_LiveCameraTab> {
                   itemBuilder: (context, index) {
                     final alert = _alerts[index];
                     final isRead = alert['is_read'] == true;
+
                     return ListTile(
-                      tileColor: isRead ? null : Colors.red.withOpacity(0.1),
+                      tileColor:
+                          isRead ? null : Colors.red.withValues(alpha: 0.1),
                       leading: Icon(Icons.person_off,
                           color: isRead ? Colors.grey : Colors.red),
                       title: Text(alert['message']),

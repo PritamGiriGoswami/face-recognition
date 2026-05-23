@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decode/jwt_decode.dart'; // you might need to add this dep
+import 'dart:convert';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -10,14 +11,16 @@ class AuthService {
 
   // Sign in with email & password
   Future<UserCredential> signIn(String email, String password) async {
-    final cred = await _auth.signInWithEmailAndPassword(email: email, password: password);
+    final cred = await _auth.signInWithEmailAndPassword(
+        email: email, password: password);
     await _storeJwt(cred.user?.uid);
     return cred;
   }
 
   // Sign up
   Future<UserCredential> signUp(String email, String password) async {
-    final cred = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    final cred = await _auth.createUserWithEmailAndPassword(
+        email: email, password: password);
     // Create user doc with role (default: student)
     await _db.collection('users').doc(cred.user?.uid).set({
       'email': email,
@@ -41,10 +44,15 @@ class AuthService {
     final dummyPayload = {
       'sub': uid,
       'role': await _getUserRole(uid),
-      'exp': DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
+      'exp':
+          DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/
+              1000,
     };
     // Encode payload as base64 (not a real signature). This is just for demo.
-    final token = '${base64Url.encode(const Utf8Encoder().convert('header'))}.${base64Url.encode(const Utf8Encoder().convert(dummyPayload.toString()))}.signature';
+    // base64Url and Utf8Encoder are from dart:convert
+    final token =
+        '${base64Url.encode(utf8.encode('header'))}.${base64Url.encode(utf8.encode(dummyPayload.toString()))}.signature';
+
     await _secureStorage.write(key: 'jwt', value: token);
   }
 

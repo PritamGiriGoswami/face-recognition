@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +32,10 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
         children: [
           MobileScanner(
             controller: controller,
-            returnImage: kIsWeb ? false : true,
             onDetect: (capture) {
               if (!_isScanning) return;
               final List<Barcode> barcodes = capture.barcodes;
-              final Uint8List? image = capture.image;
+
               for (final barcode in barcodes) {
                 if (barcode.rawValue != null) {
                   final String code = barcode.rawValue!;

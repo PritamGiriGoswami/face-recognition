@@ -4,7 +4,6 @@ import '../services/api_service.dart';
 import '../services/connectivity_service.dart';
 import 'camera_screen.dart';
 import 'qr_scanner_screen.dart';
-import 'dart:typed_data';
 
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
@@ -15,11 +14,11 @@ class AttendanceScreen extends StatefulWidget {
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
   bool _isLoading = false;
+
+  bool _isGettingLocation = false;
   String _message = "Ready to scan. Please look at the camera.";
   IconData _icon = Icons.face;
   Color _iconColor = Colors.deepPurple;
-
-  bool _isGettingLocation = false;
 
   @override
   void initState() {
@@ -66,7 +65,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         _icon = Icons.location_off;
         _iconColor = Colors.red;
         _isLoading = false;
-        _isGettingLocation = false;
       });
       return;
     }
@@ -81,9 +79,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         _iconColor = Colors.green;
       });
     } catch (e) {
-      // Check if it's a face not recognized error (404)
-      if (e.toString().contains('Face not recognized') ||
-          e.toString().contains('404')) {
+      // Check if it's a face-not-recognized / unknown-face style backend error.
+      // ApiService wraps backend errors as: "Exception: <detail>" so rely on message content.
+      final err = e.toString().toLowerCase();
+      final bool faceNotRecognized = err.contains('face not recognized') ||
+          err.contains('face not found') ||
+          err.contains('unknown face') ||
+          (err.contains('face') && err.contains('not recognized')) ||
+          (err.contains('face') && err.contains('not found'));
+
+      if (faceNotRecognized) {
         // Step 2: Try QR code
         setState(() {
           _message = "Face not recognized. Please scan QR code.";

@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Student/Employee Dashboard', 
+        title: const Text('Student/Employee Dashboard',
             style: TextStyle(fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -66,7 +66,7 @@ class HomeScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Backend Server Settings', 
+        title: const Text('Backend Server Settings',
             style: TextStyle(fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -117,7 +117,9 @@ class HomeScreen extends StatelessWidget {
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Backend URL updated: ${ApiService.baseUrl}')),
+                    SnackBar(
+                        content:
+                            Text('Backend URL updated: ${ApiService.baseUrl}')),
                   );
                 }
               } catch (e) {
@@ -166,7 +168,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
