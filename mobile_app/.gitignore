@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.runtime/
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Uploads
+uploads/
+
+# Environment
+.env
+.env.local
+
+# Build
+dist/
+build/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+ios/Pods/
+
+# Generated
+generated_launcher/

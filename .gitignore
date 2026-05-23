@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.runtime/
+backend_api*.log
+python_version_bg.log
+attendance_v2.db

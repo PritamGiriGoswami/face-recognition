@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+deepface
+opencv-python
+numpy
+pillow
+tf-keras
+firebase-admin
