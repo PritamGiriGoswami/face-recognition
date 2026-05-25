@@ -15,7 +15,6 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen> {
   bool _isLoading = false;
 
-  bool _isGettingLocation = false;
   String _message = "Ready to scan. Please look at the camera.";
   IconData _icon = Icons.face;
   Color _iconColor = Colors.deepPurple;
@@ -97,11 +96,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         });
 
         // Launch QR scanner
+        if (!mounted) return;
         final qrResult = await Navigator.of(context).push<String>(
           MaterialPageRoute(
             builder: (_) => const QrScannerScreen(),
           ),
         );
+
+        if (!mounted) return;
 
         if (qrResult == null) {
           // User cancelled QR scan

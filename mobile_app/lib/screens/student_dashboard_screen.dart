@@ -120,15 +120,18 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        theme.colorScheme.primaryContainer.withOpacity(0.4),
-                        theme.colorScheme.secondaryContainer.withOpacity(0.2),
+                        theme.colorScheme.primaryContainer
+                            .withValues(alpha: 0.4),
+                        theme.colorScheme.secondaryContainer
+                            .withValues(alpha: 0.2),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                        color: theme.colorScheme.primary.withOpacity(0.1)),
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.1)),
                   ),
                   child: Row(
                     children: [
@@ -142,7 +145,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                               color: (isGoodStanding
                                       ? Colors.green
                                       : Colors.orange)
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                               blurRadius: 10,
                               spreadRadius: 2,
                             )
@@ -220,7 +223,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             )
@@ -345,7 +348,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
@@ -354,7 +357,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         child: Row(
           children: [
             CircleAvatar(
-              backgroundColor: color.withOpacity(0.12),
+              backgroundColor: color.withValues(alpha: 0.12),
               child: Icon(icon, color: color),
             ),
             const SizedBox(width: 12),
@@ -711,8 +714,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               children: [
                 // Icon representing check type
                 CircleAvatar(
-                  backgroundColor:
-                      (isLate ? Colors.orange : Colors.green).withOpacity(0.12),
+                  backgroundColor: (isLate ? Colors.orange : Colors.green)
+                      .withValues(alpha: 0.12),
                   child: Icon(
                     isPresent ? Icons.login : Icons.check_circle,
                     color: isLate ? Colors.orange : Colors.green,
@@ -749,8 +752,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: isPresent
-                            ? Colors.green.withOpacity(0.15)
-                            : Colors.blueGrey.withOpacity(0.15),
+                            ? Colors.green.withValues(alpha: 0.15)
+                            : Colors.blueGrey.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -768,7 +771,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.15),
+                          color: Colors.orange.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Text(

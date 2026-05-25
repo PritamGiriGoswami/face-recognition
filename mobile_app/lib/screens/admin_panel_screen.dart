@@ -255,7 +255,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('admin_token');
       await prefs.remove('admin_email');
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -497,6 +499,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                   filterSummary: _filterSummary(),
                   onExportCsv: () => _exportReport('csv'),
                   onExportPdf: () => _exportReport('pdf'),
+                  onExportExcel: () => _exportReport('xlsx'),
                 ),
                 _UsersTab(
                   users: data.users,
@@ -622,12 +625,14 @@ class _AttendanceTab extends StatelessWidget {
   final String filterSummary;
   final VoidCallback onExportCsv;
   final VoidCallback onExportPdf;
+  final VoidCallback onExportExcel;
 
   const _AttendanceTab({
     required this.records,
     required this.filterSummary,
     required this.onExportCsv,
     required this.onExportPdf,
+    required this.onExportExcel,
   });
 
   @override
@@ -647,6 +652,12 @@ class _AttendanceTab extends StatelessWidget {
               onPressed: onExportPdf,
               icon: const Icon(Icons.picture_as_pdf),
               label: const Text('PDF'),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: onExportExcel,
+              icon: const Icon(Icons.grid_on_outlined),
+              label: const Text('EXCEL'),
             ),
           ],
         ),
@@ -1443,9 +1454,11 @@ class _OrganizationTabState extends State<_OrganizationTab> {
         await ApiService.createClass(widget.token, controller.text.trim());
         _loadData();
       } catch (e) {
-        if (mounted)
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Failed to add class: $e')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add class: $e')),
+          );
+        }
       }
     }
   }
@@ -1474,9 +1487,11 @@ class _OrganizationTabState extends State<_OrganizationTab> {
         await ApiService.createDepartment(widget.token, controller.text.trim());
         _loadData();
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to add department: $e')));
+            SnackBar(content: Text('Failed to add department: $e')),
+          );
+        }
       }
     }
   }
@@ -1486,9 +1501,11 @@ class _OrganizationTabState extends State<_OrganizationTab> {
       await ApiService.deleteClass(widget.token, id);
       _loadData();
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to delete class: $e')));
+          SnackBar(content: Text('Failed to delete class: $e')),
+        );
+      }
     }
   }
 
@@ -1497,9 +1514,11 @@ class _OrganizationTabState extends State<_OrganizationTab> {
       await ApiService.deleteDepartment(widget.token, id);
       _loadData();
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to delete department: $e')));
+          SnackBar(content: Text('Failed to delete department: $e')),
+        );
+      }
     }
   }
 
@@ -1603,21 +1622,27 @@ class _DevicesTabState extends State<_DevicesTab> {
   Future<void> _performAction(String deviceId, String action) async {
     try {
       await ApiService.performDeviceAction(widget.token, deviceId, action);
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Action $action sent successfully.')));
+          SnackBar(content: Text('Action $action sent successfully.')),
+        );
+      }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Action failed: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Action failed: $e')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) return const Center(child: CircularProgressIndicator());
-    if (_devices.isEmpty)
+    if (_devices.isEmpty) {
       return const Center(child: Text('No devices registered.'));
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _devices.length,
@@ -1658,6 +1683,7 @@ class _LiveCameraTab extends StatefulWidget {
 class _LiveCameraTabState extends State<_LiveCameraTab> {
   List<dynamic> _alerts = [];
   bool _isDisposed = false;
+  int _alertsFingerprint = 0;
 
   @override
   void initState() {
@@ -1675,7 +1701,19 @@ class _LiveCameraTabState extends State<_LiveCameraTab> {
     while (!_isDisposed) {
       try {
         final alerts = await ApiService.getAlerts(widget.token);
-        if (mounted) setState(() => _alerts = alerts);
+
+        // Lightweight fingerprint to avoid unnecessary rebuilds.
+        // Fingerprint includes length + (id,is_read) pairs.
+        var fp = alerts.length;
+        for (final a in alerts) {
+          fp = (fp * 31) ^ ((a['id'] ?? 0) as int);
+          fp = (fp * 31) ^ ((a['is_read'] == true) ? 1 : 0);
+        }
+
+        if (mounted && fp != _alertsFingerprint) {
+          _alertsFingerprint = fp;
+          setState(() => _alerts = alerts);
+        }
       } catch (_) {}
       await Future.delayed(const Duration(seconds: 3));
     }

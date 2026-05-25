@@ -135,7 +135,9 @@ class _CameraScreenState extends State<CameraScreen> {
       final picked = await web_picker.pickImageFromFile();
       if (picked != null) {
         widget.onImageCaptured(picked);
-        if (mounted) Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
       debugPrint('Error picking web image: $e');
@@ -187,7 +189,9 @@ class _CameraScreenState extends State<CameraScreen> {
       final bytes = await File(file.path).readAsBytes();
       final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
       widget.onImageCaptured(base64Image);
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -286,7 +290,9 @@ class _CameraScreenState extends State<CameraScreen> {
       if (controller != null &&
           controller.value.isInitialized &&
           !_isCapturing) {
-        setState(() => _isCapturing = true);
+        setState(() {
+          _isCapturing = true;
+        });
         final file = await controller.takePicture();
         if (!mounted) return;
 
@@ -302,7 +308,9 @@ class _CameraScreenState extends State<CameraScreen> {
 
         // Success visual feedback before popping camera screen
         await Future.delayed(const Duration(milliseconds: 1200));
-        if (mounted) Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       } else {
         if (kIsWeb) {
           setState(() {
@@ -416,7 +424,7 @@ class _CameraScreenState extends State<CameraScreen> {
           color: Colors.greenAccent,
           boxShadow: [
             BoxShadow(
-              color: Colors.greenAccent.withOpacity(0.8),
+              color: Colors.greenAccent.withValues(alpha: 0.8),
               blurRadius: 12,
               spreadRadius: 4,
             ),
@@ -452,10 +460,10 @@ class _CameraScreenState extends State<CameraScreen> {
       left: 20,
       right: 20,
       child: Card(
-        color: Colors.black.withOpacity(0.75),
+        color: Colors.black.withValues(alpha: 0.75),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: hudColor.withOpacity(0.5), width: 1.5),
+          side: BorderSide(color: hudColor.withValues(alpha: 0.5), width: 1.5),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -611,11 +619,13 @@ class _CameraScreenState extends State<CameraScreen> {
     Color guideColor = Colors.white70;
     if (_livenessState == "blink") {
       guideColor = Colors.amberAccent;
-    } else if (_livenessState == "smile")
+    } else if (_livenessState == "smile") {
       guideColor = Colors.pinkAccent;
-    else if (_livenessState == "scanning")
+    } else if (_livenessState == "scanning") {
       guideColor = Colors.greenAccent;
-    else if (_livenessState == "success") guideColor = Colors.green;
+    } else if (_livenessState == "success") {
+      guideColor = Colors.green;
+    }
 
     return Center(
       child: Container(
@@ -626,7 +636,7 @@ class _CameraScreenState extends State<CameraScreen> {
           borderRadius: BorderRadius.circular(160),
           boxShadow: [
             BoxShadow(
-              color: guideColor.withOpacity(0.15),
+              color: guideColor.withValues(alpha: 0.15),
               blurRadius: 20,
               spreadRadius: 2,
             ),
