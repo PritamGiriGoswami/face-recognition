@@ -4,7 +4,9 @@ import 'dart:io' show File;
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 
+import '../theme/lumina.dart';
 import '../utils/image_picker_stub.dart'
     if (dart.library.html) '../utils/image_picker_web.dart' as web_picker;
 
@@ -80,7 +82,7 @@ class _CameraScreenState extends State<CameraScreen> {
       final selectedCamera = _cameras[_selectedCameraIndex];
       final nextController = CameraController(
         selectedCamera,
-        ResolutionPreset.high,
+        ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.jpeg,
       );
@@ -186,8 +188,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
     setState(() => _isSubmitting = true);
     try {
-      final bytes = await File(file.path).readAsBytes();
-      final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+      final base64Image = await _encodeFaceImage(file);
       widget.onImageCaptured(base64Image);
       if (mounted) {
         Navigator.pop(context);
@@ -201,6 +202,21 @@ class _CameraScreenState extends State<CameraScreen> {
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  Future<String> _encodeFaceImage(XFile file) async {
+    final bytes = await File(file.path).readAsBytes();
+    final decoded = img.decodeImage(bytes);
+    if (decoded == null) {
+      return 'data:image/jpeg;base64,${base64Encode(bytes)}';
+    }
+
+    final resized = decoded.width > 720
+        ? img.copyResize(decoded,
+            width: 720, interpolation: img.Interpolation.average)
+        : decoded;
+    final compressed = img.encodeJpg(resized, quality: 76);
+    return 'data:image/jpeg;base64,${base64Encode(compressed)}';
   }
 
   // --- ACTIVE LIVENESS FLOW ---
@@ -302,8 +318,7 @@ class _CameraScreenState extends State<CameraScreen> {
           _isCapturing = false;
         });
 
-        final bytes = await File(file.path).readAsBytes();
-        final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+        final base64Image = await _encodeFaceImage(file);
         widget.onImageCaptured(base64Image);
 
         // Success visual feedback before popping camera screen
@@ -330,17 +345,46 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Widget _buildWebUploader() {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: const Text('Upload Image'),
-      ),
-      backgroundColor: Colors.black,
+      appBar: const EduTopBar(),
+      backgroundColor: Lumina.surface,
       body: Center(
-        child: ElevatedButton.icon(
-          onPressed: _pickImageForWeb,
-          icon: const Icon(Icons.upload_file),
-          label: const Text('Upload Image'),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: GlassCard(
+            accent: Lumina.tertiary,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.cloud_upload_outlined,
+                  color: Lumina.tertiary,
+                  size: 72,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Upload Image',
+                  style: TextStyle(
+                    color: Lumina.primary,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Web camera capture is unavailable here. Upload a clear face image to continue AI verification.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Lumina.onSurfaceVariant),
+                ),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: _pickImageForWeb,
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text('Choose Image'),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -348,36 +392,36 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Widget _buildCameraError() {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: const Text('Camera'),
-      ),
+      backgroundColor: Lumina.surface,
+      appBar: const EduTopBar(),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.no_photography_outlined,
-                color: Colors.white70,
-                size: 64,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _errorMessage ?? 'Camera is unavailable.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: () => _initCamera(),
-                icon: const Icon(Icons.refresh),
-                label: const Text('Try Again'),
-              ),
-            ],
+          child: GlassCard(
+            accent: Lumina.error,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.no_photography_outlined,
+                  color: Lumina.error,
+                  size: 64,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _errorMessage ?? 'Camera is unavailable.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Lumina.onSurface, fontSize: 18),
+                ),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: () => _initCamera(),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Try Again'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -421,10 +465,12 @@ class _CameraScreenState extends State<CameraScreen> {
         width: 240,
         height: 4,
         decoration: BoxDecoration(
-          color: Colors.greenAccent,
+          gradient: const LinearGradient(
+            colors: [Colors.transparent, Lumina.tertiary, Colors.transparent],
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.greenAccent.withValues(alpha: 0.8),
+              color: Lumina.tertiary.withValues(alpha: 0.8),
               blurRadius: 12,
               spreadRadius: 4,
             ),
@@ -435,23 +481,23 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Widget _buildLivenessHUD() {
-    Color hudColor = Colors.deepPurpleAccent;
+    Color hudColor = Lumina.primary;
     IconData stepIcon = Icons.face;
 
     if (_livenessState == "blink") {
       hudColor = Colors.amberAccent;
       stepIcon = Icons.remove_red_eye_outlined;
     } else if (_livenessState == "smile") {
-      hudColor = Colors.pinkAccent;
+      hudColor = Lumina.secondary;
       stepIcon = Icons.sentiment_satisfied_alt;
     } else if (_livenessState == "scanning") {
-      hudColor = Colors.greenAccent;
+      hudColor = Lumina.tertiary;
       stepIcon = Icons.qr_code_scanner_outlined;
     } else if (_livenessState == "success") {
-      hudColor = Colors.green;
+      hudColor = const Color(0xFF4ADE80);
       stepIcon = Icons.verified;
     } else if (_livenessState == "idle") {
-      hudColor = Colors.grey;
+      hudColor = Lumina.onSurfaceVariant;
       stepIcon = Icons.face;
     }
 
@@ -459,11 +505,17 @@ class _CameraScreenState extends State<CameraScreen> {
       top: 100,
       left: 20,
       right: 20,
-      child: Card(
-        color: Colors.black.withValues(alpha: 0.75),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: hudColor.withValues(alpha: 0.5), width: 1.5),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Lumina.surfaceContainer.withValues(alpha: 0.88),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: hudColor.withValues(alpha: 0.45)),
+          boxShadow: [
+            BoxShadow(
+              color: hudColor.withValues(alpha: 0.14),
+              blurRadius: 20,
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -478,7 +530,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     child: CircularProgressIndicator(
                       value: _livenessProgress,
                       color: hudColor,
-                      backgroundColor: Colors.white24,
+                      backgroundColor: Colors.white12,
                       strokeWidth: 4,
                     ),
                   ),
@@ -504,7 +556,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     Text(
                       _livenessInstruction,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Lumina.onSurface,
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
@@ -527,21 +579,33 @@ class _CameraScreenState extends State<CameraScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton.filledTonal(
+          IconButton.filled(
             tooltip: 'Close',
             icon: const Icon(Icons.close),
+            style: IconButton.styleFrom(
+              backgroundColor: Lumina.surfaceContainer.withValues(alpha: 0.9),
+              foregroundColor: Lumina.onSurface,
+            ),
             onPressed: () => Navigator.pop(context),
           ),
           if (_livenessState == "idle" || _livenessState == "success")
-            IconButton.filledTonal(
+            IconButton.filled(
               tooltip: 'Restart Liveness',
               icon: const Icon(Icons.refresh),
+              style: IconButton.styleFrom(
+                backgroundColor: Lumina.surfaceContainer.withValues(alpha: 0.9),
+                foregroundColor: Lumina.primary,
+              ),
               onPressed: _startLivenessSequence,
             ),
           if (_capturedFile == null && _cameras.length > 1)
-            IconButton.filledTonal(
+            IconButton.filled(
               tooltip: 'Switch camera',
               icon: const Icon(Icons.cameraswitch_outlined),
+              style: IconButton.styleFrom(
+                backgroundColor: Lumina.surfaceContainer.withValues(alpha: 0.9),
+                foregroundColor: Lumina.tertiary,
+              ),
               onPressed: _switchCamera,
             ),
         ],
@@ -569,8 +633,8 @@ class _CameraScreenState extends State<CameraScreen> {
                       icon: const Icon(Icons.refresh),
                       label: const Text('Retake'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white70),
+                        foregroundColor: Lumina.primary,
+                        side: const BorderSide(color: Lumina.primary),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
@@ -633,7 +697,7 @@ class _CameraScreenState extends State<CameraScreen> {
         height: 320,
         decoration: BoxDecoration(
           border: Border.all(color: guideColor, width: 2.5),
-          borderRadius: BorderRadius.circular(160),
+          borderRadius: BorderRadius.circular(46),
           boxShadow: [
             BoxShadow(
               color: guideColor.withValues(alpha: 0.15),
@@ -651,18 +715,28 @@ class _CameraScreenState extends State<CameraScreen> {
     if (kIsWeb) return _buildWebUploader();
     if (_isInitializing) {
       return const Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(child: CircularProgressIndicator()),
+        backgroundColor: Lumina.surface,
+        body: Center(child: CircularProgressIndicator(color: Lumina.tertiary)),
       );
     }
     if (_errorMessage != null) return _buildCameraError();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Lumina.surface,
       body: Stack(
         fit: StackFit.expand,
         children: [
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Lumina.surface, Lumina.surfaceLowest],
+              ),
+            ),
+          ),
           _buildPreview(),
+          Container(color: Lumina.surface.withValues(alpha: 0.12)),
           _buildCapturedPreview(),
           _buildFaceGuide(),
           _buildScanningBar(),

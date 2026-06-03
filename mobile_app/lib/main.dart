@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/api_service.dart';
 import 'screens/home_screen.dart';
+import 'theme/lumina.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,27 +34,9 @@ class FaceRecognitionApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Gurukul School Attendance',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6200EE),
-          brightness: Brightness.light,
-        ),
-        textTheme: GoogleFonts.interTextTheme(
-          Theme.of(context).textTheme,
-        ),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFBB86FC),
-          brightness: Brightness.dark,
-        ),
-        textTheme: GoogleFonts.interTextTheme(
-          ThemeData.dark().textTheme,
-        ),
-        useMaterial3: true,
-      ),
-      themeMode: ThemeMode.system,
+      theme: Lumina.theme(),
+      darkTheme: Lumina.theme(),
+      themeMode: ThemeMode.dark,
       home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
     );

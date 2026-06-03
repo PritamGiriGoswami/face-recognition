@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'camera_screen.dart';
 
@@ -50,6 +51,68 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
+  void _showServerSettings() {
+    final controller = TextEditingController(text: ApiService.customBaseUrl);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Backend Server Settings'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'Server URL / IP',
+                hintText: '192.168.1.100:8000',
+                prefixIcon: const Icon(Icons.dns_outlined),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: controller.clear,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Current: ${ApiService.baseUrl}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final newUrl = controller.text.trim();
+              final prefs = await SharedPreferences.getInstance();
+              if (newUrl.isEmpty) {
+                await prefs.remove('custom_backend_url');
+                ApiService.setCustomBaseUrl('');
+              } else {
+                await prefs.setString('custom_backend_url', newUrl);
+                ApiService.setCustomBaseUrl(newUrl);
+              }
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Backend URL: ${ApiService.baseUrl}')),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -62,7 +125,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register User')),
+      appBar: AppBar(
+        title: const Text('Register User'),
+        actions: [
+          IconButton(
+            tooltip: 'Server Settings',
+            onPressed: _isLoading ? null : _showServerSettings,
+            icon: const Icon(Icons.settings_outlined),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(

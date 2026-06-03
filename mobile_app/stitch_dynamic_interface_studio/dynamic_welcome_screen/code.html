@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduGuard AI - Gurukul Attendance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanning-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #2fd9f4, transparent);
+            animation: scan 3s ease-in-out infinite;
+        }
+        @keyframes scan {
+            0%, 100% { transform: translateY(0); opacity: 0; }
+            50% { transform: translateY(240px); opacity: 1; }
+        }
+        .ai-glow {
+            box-shadow: 0 0 20px 2px rgba(208, 188, 255, 0.2);
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(51, 65, 85, 1);
+        }
+        .pulse-violet {
+            animation: pulse-violet 2s infinite;
+        }
+        @keyframes pulse-violet {
+            0% { box-shadow: 0 0 0 0 rgba(208, 188, 255, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(208, 188, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(208, 188, 255, 0); }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#0b1326",
+                        "on-tertiary": "#00363e",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-primary-fixed-variant": "#5516be",
+                        "on-surface": "#dae2fd",
+                        "on-secondary": "#1000a9",
+                        "secondary-fixed": "#e1e0ff",
+                        "surface-tint": "#d0bcff",
+                        "surface-bright": "#31394d",
+                        "inverse-on-surface": "#283044",
+                        "error-container": "#93000a",
+                        "inverse-surface": "#dae2fd",
+                        "on-surface-variant": "#cbc3d7",
+                        "primary-fixed-dim": "#d0bcff",
+                        "on-secondary-fixed": "#07006c",
+                        "primary-container": "#a078ff",
+                        "on-tertiary-fixed-variant": "#004e5a",
+                        "tertiary-container": "#009fb4",
+                        "on-tertiary-container": "#002f36",
+                        "outline": "#958ea0",
+                        "surface-container-low": "#131b2e",
+                        "secondary": "#c0c1ff",
+                        "on-background": "#dae2fd",
+                        "on-tertiary-fixed": "#001f25",
+                        "secondary-container": "#3131c0",
+                        "error": "#ffb4ab",
+                        "on-primary-container": "#340080",
+                        "surface-container": "#171f33",
+                        "surface-container-highest": "#2d3449",
+                        "tertiary-fixed": "#a2eeff",
+                        "primary-fixed": "#e9ddff",
+                        "on-primary-fixed": "#23005c",
+                        "tertiary": "#2fd9f4",
+                        "on-primary": "#3c0091",
+                        "background": "#0b1326",
+                        "surface-variant": "#2d3449",
+                        "inverse-primary": "#6d3bd7",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#d0bcff",
+                        "surface-container-lowest": "#060e20",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-container-high": "#222a3d",
+                        "on-secondary-container": "#b0b2ff",
+                        "tertiary-fixed-dim": "#2fd9f4",
+                        "outline-variant": "#494454",
+                        "surface-dim": "#0b1326"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "stack-md": "16px",
+                        "gutter": "16px",
+                        "stack-sm": "8px",
+                        "unit": "8px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<nav class="flex justify-between items-center px-margin-mobile h-16 w-full fixed top-0 z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-xl border-b border-white/5 shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container overflow-hidden">
+<span class="material-symbols-outlined">school</span>
+</div>
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">EduGuard AI</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 pt-24 pb-32 px-margin-mobile max-w-[1200px] mx-auto w-full">
+<section class="flex flex-col items-center text-center space-y-stack-lg">
+<!-- AI Scanning Interface -->
+<div class="relative w-64 h-64 md:w-80 md:h-80 mx-auto">
+<div class="absolute inset-0 flex items-center justify-center">
+<!-- Scanner Background -->
+<div class="w-full h-full rounded-3xl bg-surface-container-high relative overflow-hidden glass-panel">
+<img alt="Scanner Interface" class="w-full h-full object-cover opacity-40 mix-blend-overlay" data-alt="A futuristic biometric scanning interface with glowing violet digital overlays and neural network patterns. The lighting is low-key with high-contrast violet light sources illuminating a technical grid. The mood is secure, sophisticated, and high-tech, reflecting a premium educational security system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf9dHMMLHtVYmQ-MRRZBQWczwvEAtmugKiYTO9mYPOVzsqgTI3PM2NUd0YG7Q9akVs5gO4ZIdlvHWhQhes7OnDeE2tXhGRGI2kFK7yzP0zwNWHNSn7vCVcwimT1JS3pap5zCYX0vEakFNs_flgcvusardWMzxdf2na7fU93M2zd8bqC_ZPCmXZvolTD2ZhaFYgnNayx0RA_CklmKEISbPXR4QLNvmcCXuXykZBrqdzy9M3A2LKYpXSeHJwt7aWGECUiP37irojGYau"/>
+<div class="scanning-line absolute top-0 left-0 w-full z-10"></div>
+<!-- L-Corners -->
+<div class="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-tertiary"></div>
+<div class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-tertiary"></div>
+<div class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-tertiary"></div>
+<div class="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-tertiary"></div>
+</div>
+</div>
+<!-- Central AI Icon -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-24 h-24 rounded-full bg-primary/20 backdrop-blur-md border border-primary/50 flex items-center justify-center pulse-violet ai-glow">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1;">face</span>
+</div>
+</div>
+</div>
+<!-- Welcome Message -->
+<div class="space-y-stack-sm max-w-2xl mx-auto">
+<h1 class="font-headline-lg-mobile md:font-display-lg text-headline-lg-mobile md:text-display-lg text-on-surface tracking-tight">
+                    Welcome to <span class="text-primary">Gurukul School</span> AI Attendance
+                </h1>
+<p class="text-on-surface-variant font-body-md px-4">
+                    Experience frictionless, secure, and intelligent check-ins for the next generation of learners.
+                </p>
+</div>
+<!-- Primary Actions - Bento Grid Style -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-stack-md w-full mt-stack-lg">
+<!-- Mark Attendance (Primary, Large) -->
+<button class="md:col-span-2 group relative overflow-hidden p-6 rounded-2xl bg-gradient-to-br from-primary-container to-primary flex flex-col items-start justify-between min-h-[160px] active:scale-95 transition-all">
+<div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+<span class="material-symbols-outlined text-white text-3xl">how_to_reg</span>
+</div>
+<div class="text-left">
+<span class="block text-white font-headline-lg-mobile">Mark Attendance</span>
+<span class="block text-white/80 text-sm">Face ID scanning &amp; AI verification</span>
+</div>
+<div class="absolute top-4 right-4 opacity-10 group-hover:scale-125 transition-transform">
+<span class="material-symbols-outlined text-7xl">sensors</span>
+</div>
+</button>
+<!-- Register New User -->
+<button class="glass-panel p-6 rounded-2xl flex flex-col items-start justify-between min-h-[160px] hover:bg-surface-bright/20 active:scale-95 transition-all">
+<div class="bg-tertiary-container/20 p-3 rounded-xl">
+<span class="material-symbols-outlined text-tertiary text-2xl">person_add</span>
+</div>
+<div class="text-left">
+<span class="block text-on-surface font-semibold">Register New</span>
+<span class="block text-on-surface-variant text-sm">Onboard students &amp; staff</span>
+</div>
+</button>
+<!-- My Dashboard -->
+<button class="glass-panel p-6 rounded-2xl flex flex-col items-start justify-between min-h-[160px] hover:bg-surface-bright/20 active:scale-95 transition-all">
+<div class="bg-secondary-container/20 p-3 rounded-xl">
+<span class="material-symbols-outlined text-secondary text-2xl">dashboard</span>
+</div>
+<div class="text-left">
+<span class="block text-on-surface font-semibold">My Dashboard</span>
+<span class="block text-on-surface-variant text-sm">View your personal logs</span>
+</div>
+</button>
+<!-- Admin Dash (Conditional) -->
+<button class="glass-panel p-6 rounded-2xl flex flex-col items-start justify-between min-h-[160px] hover:bg-surface-bright/20 active:scale-95 transition-all lg:col-span-1">
+<div class="bg-primary/10 p-3 rounded-xl">
+<span class="material-symbols-outlined text-primary text-2xl">shield_person</span>
+</div>
+<div class="text-left">
+<span class="block text-on-surface font-semibold">Admin Panel</span>
+<span class="block text-on-surface-variant text-sm">School-wide analytics</span>
+</div>
+</button>
+</div>
+<!-- Recent Activity Ticker -->
+<div class="w-full mt-stack-lg glass-panel p-4 rounded-xl flex items-center justify-between overflow-hidden">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest">Live Feed</span>
+</div>
+<div class="flex-1 px-4 overflow-hidden">
+<div class="flex items-center gap-4 text-sm animate-marquee whitespace-nowrap">
+<span class="text-on-surface">Aryan K. - Marked Present (9:01 AM)</span>
+<span class="text-on-surface-variant">•</span>
+<span class="text-on-surface">Priya S. - Marked Present (8:58 AM)</span>
+<span class="text-on-surface-variant">•</span>
+<span class="text-on-surface">System - AI Verified Gate 4 Entry</span>
+</div>
+</div>
+<div class="bg-surface-bright px-2 py-1 rounded text-[10px] font-bold text-primary">AI STABLE</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-surface-container/90 dark:bg-surface-container/90 backdrop-blur-lg border-t border-white/10 shadow-[0_-4px_20px_rgba(208,188,255,0.1)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-bright/50 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="face">face</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-bright/50 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-sm text-label-sm">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-bright/50 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="manage_accounts">manage_accounts</span>
+<span class="font-label-sm text-label-sm">Admin</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for the marquee effect if needed beyond CSS
+        const marquee = document.querySelector('.animate-marquee');
+        if (marquee) {
+            marquee.style.animation = 'marquee 20s linear infinite';
+            
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes marquee {
+                    0% { transform: translateX(100%); }
+                    100% { transform: translateX(-100%); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Ripple effect on primary button
+        const primaryBtn = document.querySelector('.bg-gradient-to-br');
+        primaryBtn.addEventListener('click', function(e) {
+            let ripple = document.createElement('span');
+            ripple.classList.add('absolute', 'bg-white/30', 'rounded-full', 'pointer-events-none', '-translate-x-1/2', '-translate-y-1/2');
+            let rect = this.getBoundingClientRect();
+            let size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = e.clientX - rect.left + 'px';
+            ripple.style.top = e.clientY - rect.top + 'px';
+            ripple.style.animation = 'ripple 600ms linear';
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        const rippleStyle = document.createElement('style');
+        rippleStyle.innerHTML = `
+            @keyframes ripple {
+                from { opacity: 1; transform: scale(0); }
+                to { opacity: 0; transform: scale(2); }
+            }
+        `;
+        document.head.appendChild(rippleStyle);
+    </script>
+</body></html>

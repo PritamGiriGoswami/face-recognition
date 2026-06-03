@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduGuard AI - Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#0b1326",
+                        "on-tertiary": "#00363e",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-primary-fixed-variant": "#5516be",
+                        "on-surface": "#dae2fd",
+                        "on-secondary": "#1000a9",
+                        "secondary-fixed": "#e1e0ff",
+                        "surface-tint": "#d0bcff",
+                        "surface-bright": "#31394d",
+                        "inverse-on-surface": "#283044",
+                        "error-container": "#93000a",
+                        "inverse-surface": "#dae2fd",
+                        "on-surface-variant": "#cbc3d7",
+                        "primary-fixed-dim": "#d0bcff",
+                        "on-secondary-fixed": "#07006c",
+                        "primary-container": "#a078ff",
+                        "on-tertiary-fixed-variant": "#004e5a",
+                        "tertiary-container": "#009fb4",
+                        "on-tertiary-container": "#002f36",
+                        "outline": "#958ea0",
+                        "surface-container-low": "#131b2e",
+                        "secondary": "#c0c1ff",
+                        "on-background": "#dae2fd",
+                        "on-tertiary-fixed": "#001f25",
+                        "secondary-container": "#3131c0",
+                        "error": "#ffb4ab",
+                        "on-primary-container": "#340080",
+                        "surface-container": "#171f33",
+                        "surface-container-highest": "#2d3449",
+                        "tertiary-fixed": "#a2eeff",
+                        "primary-fixed": "#e9ddff",
+                        "on-primary-fixed": "#23005c",
+                        "tertiary": "#2fd9f4",
+                        "on-primary": "#3c0091",
+                        "background": "#0b1326",
+                        "surface-variant": "#2d3449",
+                        "inverse-primary": "#6d3bd7",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#d0bcff",
+                        "surface-container-lowest": "#060e20",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-container-high": "#222a3d",
+                        "on-secondary-container": "#b0b2ff",
+                        "tertiary-fixed-dim": "#2fd9f4",
+                        "outline-variant": "#494454",
+                        "surface-dim": "#0b1326"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "stack-md": "16px",
+                        "gutter": "16px",
+                        "stack-sm": "8px",
+                        "unit": "8px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ai-pulse {
+            box-shadow: 0 0 20px 0 rgba(208, 188, 255, 0.2);
+        }
+        .status-glow-violet { border-left: 4px solid #d0bcff; box-shadow: -4px 0 12px -2px rgba(208, 188, 255, 0.3); }
+        .status-glow-green { border-left: 4px solid #2fd9f4; box-shadow: -4px 0 12px -2px rgba(47, 217, 244, 0.3); }
+        .scanning-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #2fd9f4, transparent);
+            animation: scan 3s infinite linear;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            background-color: #0b1326;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface selection:bg-primary/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 z-50 flex justify-between items-center px-5 h-16 w-full bg-surface/80 backdrop-blur-xl border-b border-white/5 shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="School Logo" class="w-full h-full object-cover" data-alt="A professional high-tech school logo designed for a futuristic educational institution. The emblem features a stylized geometric owl or open book icon in vibrant violet and cyan neon gradients against a deep obsidian background. The visual style is sleek, corporate modern, and highly technical with subtle micro-textures and a glossy finish reflecting the intelligent AI guard theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkuTvgeVmsB3dLqA5qqRFsqfKiImiChq0z8iGXBDoSrWsYi8qXO4IBNDOxMALNv7gjJnXoTGfA3pOcqU94HV1f1CBKh9mZctGArBFDRVz3yT4YMcaPhs2CPaVWb1swBejbhwb05mntiNrqA8ELBOCRL1zPGM0kBOzR_OJiKwUXRd2D7wbBcmSjVXLq9NXvFvJxx__bx325jPJuOZpxk1ia7ln9ryGqliIBeXNu7CEE1OvKevX0LY2X7WecVmGxMdH9h932Dci2-87s"/>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">EduGuard AI</h1>
+</div>
+<button class="material-symbols-outlined text-primary hover:opacity-80 transition-opacity active:scale-95 transition-transform" data-icon="notifications">
+            notifications
+        </button>
+</header>
+<!-- Main Content -->
+<main class="pt-24 pb-28 px-5 max-w-[1200px] mx-auto min-h-screen">
+<!-- Stats Row -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<!-- Total Students -->
+<div class="glass-card p-4 rounded-xl relative overflow-hidden ai-pulse">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider mb-1">Total Students</p>
+<h2 class="font-display-lg text-4xl text-primary">1,248</h2>
+</div>
+<span class="material-symbols-outlined text-primary-container bg-primary-container/10 p-2 rounded-lg" data-icon="groups">groups</span>
+</div>
+<div class="mt-4 flex items-center text-xs text-tertiary">
+<span class="material-symbols-outlined text-sm mr-1" data-icon="trending_up">trending_up</span>
+<span>+12 this semester</span>
+</div>
+</div>
+<!-- Staff Members -->
+<div class="glass-card p-4 rounded-xl relative overflow-hidden">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider mb-1">Staff Members</p>
+<h2 class="font-display-lg text-4xl text-secondary">86</h2>
+</div>
+<span class="material-symbols-outlined text-secondary p-2 rounded-lg bg-secondary/10" data-icon="badge">badge</span>
+</div>
+<div class="mt-4 flex items-center text-xs text-on-surface-variant">
+<span>4 new positions open</span>
+</div>
+</div>
+<!-- Attendance Rate -->
+<div class="glass-card p-4 rounded-xl relative overflow-hidden">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider mb-1">Attendance Rate</p>
+<h2 class="font-display-lg text-4xl text-tertiary">94.2%</h2>
+</div>
+<span class="material-symbols-outlined text-tertiary p-2 rounded-lg bg-tertiary/10" data-icon="query_stats">query_stats</span>
+</div>
+<div class="mt-4 w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[94.2%]"></div>
+</div>
+</div>
+</section>
+<!-- Pending Approvals Section -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Pending Approvals</h3>
+<span class="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold border border-primary/30">3 New</span>
+</div>
+<div class="space-y-4">
+<!-- Approval Card 1 -->
+<div class="glass-card p-4 rounded-xl status-glow-violet group hover:bg-white/[0.05] transition-all">
+<div class="flex items-center gap-4">
+<div class="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a young male student for a high-tech school ID system. The lighting is crisp and cinematic with a subtle violet rim light that matches the dark-mode aesthetic. He is standing against a clean, out-of-focus modern glass corridor with glowing digital textures in the background, creating a sense of intelligent security and efficiency." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3sbI6txpsLDOijlPWCRZ-55wH6MInSLj0dH7mq6pMbrmQ6IQzSCDI7VgPnjxBWTAUv5bR99476QBrav6y6oD5V4aValMcBxNbVfPQhf8Zik88rfraAqPK5nqd_w895-LbUi2uLVLQnaVxz2bZYLL9txGvtnSGmagwoJ8crf6zrXb43zA_Bn5shFVbl4kK20f261BQ-avUQv-Nuykr0-CzhlcKp5PU_eq-lWswvJe4iFwT4rNUQyFG990LXxmmlrddKPA0uOS59giy"/>
+<div class="absolute inset-0 scanning-line pointer-events-none"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface">Marcus Sterling</h4>
+<p class="text-xs text-on-surface-variant">Incoming 10th Grade Student</p>
+</div>
+<span class="text-[10px] bg-surface-container-highest px-2 py-0.5 rounded text-on-surface-variant">AI Verified 98%</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex gap-2">
+<button class="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm text-label-sm font-bold active:scale-95 transition-transform">
+                            Approve
+                        </button>
+<button class="flex-1 border-2 border-primary/30 text-primary py-2 rounded-lg font-label-sm text-label-sm font-bold hover:bg-primary/5 active:scale-95 transition-transform">
+                            Reject
+                        </button>
+</div>
+</div>
+<!-- Approval Card 2 -->
+<div class="glass-card p-4 rounded-xl status-glow-violet group hover:bg-white/[0.05] transition-all">
+<div class="flex items-center gap-4">
+<div class="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A portrait of a professional female educator for a digital admin portal. She is smiling confidently in a futuristic office setting with soft indigo and violet ambient lighting. The atmosphere is sophisticated and high-tech, featuring subtle light trails and a clean, glassmorphic UI overlay in the background that suggests an advanced educational technology environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCc-tL8prXJbEuslCa6T6K6YrXfsVrPI2TtIv3YV8RKw4fqi5Aic0wqL_Da8b8D-na7ZOu_rBoceLN4M84PIkWVDo2iFVqzBf2rSV6xRkK8S0PKVq1UiqB40w_A1a_1qMB2S4iiY0nP2a17pTX0yR_Vh6_tGLOgsr5y2oq3i53BZh54vqIQVt5bl-ym8nlJSPbGNLLWAmGvFjZaEq3ENM4CUdBEbi4nXyBonL2Z2_Y0huUWjAUpKcdPwlxb925VqlblXjhkcAGw1b87"/>
+<div class="absolute inset-0 scanning-line pointer-events-none"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface">Dr. Elena Rodriguez</h4>
+<p class="text-xs text-on-surface-variant">Science Faculty (Bio-Tech)</p>
+</div>
+<span class="text-[10px] bg-surface-container-highest px-2 py-0.5 rounded text-on-surface-variant">ID Match Success</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex gap-2">
+<button class="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm text-label-sm font-bold active:scale-95 transition-transform">
+                            Approve
+                        </button>
+<button class="flex-1 border-2 border-primary/30 text-primary py-2 rounded-lg font-label-sm text-label-sm font-bold hover:bg-primary/5 active:scale-95 transition-transform">
+                            Reject
+                        </button>
+</div>
+</div>
+<!-- Approval Card 3 -->
+<div class="glass-card p-4 rounded-xl status-glow-violet group hover:bg-white/[0.05] transition-all">
+<div class="flex items-center gap-4">
+<div class="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close-up facial scan of a male administrative staff member for a biometric security database. The composition is centered with high-resolution detail. The lighting uses cool cyan and deep violet tones to create a sleek, futuristic aesthetic. In the background, there are blurred digital displays showing school data metrics, maintaining the intelligent and reliable brand persona." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2aDaIt8rYtojYEAXYmap37VsaM-bfYihjOhTgqM7jb_DX7mfctWBmcxTqGzXLAGCwAW2yPrcW52VN6pSLdtjnLUoE2Ofzedhr8nqmmfha4ux8XPQrnKsCKqETa4Gk_s3pa-kFV4aaLMjAdYdZTSJSa0CsU6yW20k1whnuK3jxqX4keEd60q_SrQftz5Hzr1gTbQWpZxsW5UU46AodXhStWa9zBHuZFdbvG8_6e3rqIMP5iA10cImM9_mT49YAKrg9lCJBfCGdsBrd"/>
+<div class="absolute inset-0 scanning-line pointer-events-none"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface">Julian Vane</h4>
+<p class="text-xs text-on-surface-variant">Facilities Management</p>
+</div>
+<span class="text-[10px] bg-error/20 text-error px-2 py-0.5 rounded">Manual Review Req.</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex gap-2">
+<button class="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-sm text-label-sm font-bold active:scale-95 transition-transform">
+                            Approve
+                        </button>
+<button class="flex-1 border-2 border-primary/30 text-primary py-2 rounded-lg font-label-sm text-label-sm font-bold hover:bg-primary/5 active:scale-95 transition-transform">
+                            Reject
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Background Atmospheric Element -->
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -z-10"></div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-surface-container/90 backdrop-blur-lg border-t border-white/10 shadow-[0_-4px_20px_rgba(208,188,255,0.1)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-bright/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-bright/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="face">face</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-bright/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="history">history</span>
+<span class="font-label-sm text-label-sm">History</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="manage_accounts">manage_accounts</span>
+<span class="font-label-sm text-label-sm">Admin</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if(this.textContent.trim().toLowerCase() === 'approve') {
+                    const card = this.closest('.glass-card');
+                    card.style.transform = 'scale(0.95)';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.remove();
+                    }, 300);
+                }
+            });
+        });
+    </script>
+</body></html>
