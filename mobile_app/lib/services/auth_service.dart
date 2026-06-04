@@ -61,6 +61,11 @@ class AuthService {
     return snap.data()?['role'] ?? 'student';
   }
 
+  // Send password reset email
+  Future<void> sendPasswordReset(String email) async {
+    await _auth.sendPasswordResetEmail(email: email);
+  }
+
   // Get stored JWT
   Future<String?> getJwt() async => await _secureStorage.read(key: 'jwt');
 

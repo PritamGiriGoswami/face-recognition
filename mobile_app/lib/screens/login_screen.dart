@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../theme/tesla_theme.dart';
 import 'admin_panel_screen.dart';
 import 'home_screen.dart';
+import 'registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -99,6 +101,60 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showForgotPassword() {
+    final emailController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: TeslaTheme.surfaceHigh,
+        title: const Text('Reset Password', style: TextStyle(color: TeslaTheme.onSurface)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Enter your email to receive a password reset link.',
+              style: TextStyle(color: TeslaTheme.onSurfaceVariant, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            TeslaTextField(
+              controller: emailController,
+              labelText: 'Email',
+              keyboardType: TextInputType.emailAddress,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: TeslaTheme.onSurfaceVariant)),
+          ),
+          TextButton(
+            onPressed: () async {
+              final email = emailController.text.trim();
+              if (email.isEmpty) return;
+              try {
+                await AuthService().sendPasswordReset(email);
+                if (ctx.mounted) {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Reset link sent to your email.')),
+                  );
+                }
+              } catch (e) {
+                if (ctx.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+                  );
+                }
+              }
+            },
+            child: const Text('Send', style: TextStyle(color: TeslaTheme.primary)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,17 +214,37 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 onSubmitted: (_) => _login(),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 32),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: _showForgotPassword,
+                  child: const Text(
+                    'Forgot Password?',
+                    style: TextStyle(color: TeslaTheme.primary, fontSize: 14),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               TeslaButton(
                 onPressed: _login,
                 isLoading: _isLoading,
                 child: const Text('Sign In'),
               ),
               const SizedBox(height: 16),
-              TeslaButton(
-                onPressed: () {},
-                isSecondary: true,
-                child: const Text('Trouble Signing In?'),
+              Row(
+                children: [
+                  Expanded(
+                    child: TeslaButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RegistrationScreen()),
+                      ),
+                      isSecondary: true,
+                      child: const Text('Sign Up'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
