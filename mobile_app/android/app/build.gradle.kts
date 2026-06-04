@@ -26,7 +26,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion // Camera plugin requires minSdk 21 or higher
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = flutter.targetSdkVers ion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
