@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../theme/tesla_theme.dart';
 import 'camera_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -56,29 +57,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Backend Server Settings'),
+        backgroundColor: TeslaTheme.surfaceHigh,
+        title: const Text('Backend Server Settings', style: TextStyle(color: TeslaTheme.onSurface)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            TeslaTextField(
               controller: controller,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Server URL / IP',
-                hintText: '192.168.1.100:8000',
-                prefixIcon: const Icon(Icons.dns_outlined),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: controller.clear,
-                ),
-              ),
+              labelText: 'Server URL / IP',
+              prefixIcon: Icons.dns_outlined,
             ),
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'Current: ${ApiService.baseUrl}',
-                style: Theme.of(context).textTheme.bodySmall,
+                style: const TextStyle(color: TeslaTheme.primary, fontSize: 12),
               ),
             ),
           ],
@@ -86,9 +80,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: TeslaTheme.onSurfaceVariant)),
           ),
-          FilledButton(
+          TextButton(
             onPressed: () async {
               final newUrl = controller.text.trim();
               final prefs = await SharedPreferences.getInstance();
@@ -106,7 +100,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 );
               }
             },
-            child: const Text('Save'),
+            child: const Text('Save', style: TextStyle(color: TeslaTheme.primary)),
           ),
         ],
       ),
@@ -125,113 +119,118 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: TeslaTheme.surface,
       appBar: AppBar(
-        title: const Text('Register User'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('Register User', style: TextStyle(fontSize: 18)),
+        centerTitle: true,
         actions: [
           IconButton(
             tooltip: 'Server Settings',
             onPressed: _isLoading ? null : _showServerSettings,
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.settings_outlined, color: TeslaTheme.onSurfaceVariant),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TeslaTextField(
                 controller: _nameController,
-                decoration: InputDecoration(
-                    labelText: 'Full Name',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    prefixIcon: const Icon(Icons.person))),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                  labelText: 'Email Address',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.email)),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _classController,
-              decoration: InputDecoration(
-                  labelText: 'Class',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.school)),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _departmentController,
-              decoration: InputDecoration(
-                  labelText: 'Department',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.business)),
-            ),
-            const SizedBox(height: 32),
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                labelText: 'Full Name',
+                prefixIcon: Icons.person_outline,
               ),
-              child: _base64Image == null
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.face, size: 64, color: Colors.grey),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
+              const SizedBox(height: 16),
+              TeslaTextField(
+                controller: _emailController,
+                labelText: 'Email Address',
+                prefixIcon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+              TeslaTextField(
+                controller: _classController,
+                labelText: 'Class / Role',
+                prefixIcon: Icons.school_outlined,
+              ),
+              const SizedBox(height: 16),
+              TeslaTextField(
+                controller: _departmentController,
+                labelText: 'Department',
+                prefixIcon: Icons.business_outlined,
+              ),
+              const SizedBox(height: 32),
+              
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  color: TeslaTheme.surfaceHigh,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: TeslaTheme.outlineVariant),
+                ),
+                child: _base64Image == null
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.face_retouching_natural, size: 64, color: TeslaTheme.onSurfaceVariant),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 48),
+                            child: TeslaButton(
+                              height: 44,
+                              isSecondary: true,
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
                                   builder: (_) => CameraScreen(
-                                        onImageCaptured: (img) =>
-                                            setState(() => _base64Image = img),
-                                      ))),
-                          icon: const Icon(Icons.camera),
-                          label: const Text("Capture Face"),
-                        )
-                      ],
-                    )
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.check_circle,
-                            size: 64, color: Colors.green),
-                        const SizedBox(height: 16),
-                        const Text("Image Captured Successfully!",
-                            style: TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold)),
-                        TextButton(
-                          onPressed: () => setState(() => _base64Image = null),
-                          child: const Text("Retake Photo"),
-                        )
-                      ],
-                    ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _register,
-              style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12))),
-              child: _isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text("Complete Registration",
-                      style: TextStyle(fontSize: 18)),
-            ),
-          ],
+                                    onImageCaptured: (img) =>
+                                        setState(() => _base64Image = img),
+                                  ),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.camera_alt_outlined, size: 18),
+                                  SizedBox(width: 8),
+                                  Text("Capture Face"),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.check_circle_outline,
+                              size: 64, color: Color(0xFF4ADE80)),
+                          const SizedBox(height: 16),
+                          const Text("Image Captured Successfully!",
+                              style: TextStyle(
+                                  color: Color(0xFF4ADE80),
+                                  fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () => setState(() => _base64Image = null),
+                            child: const Text("Retake Photo", style: TextStyle(color: TeslaTheme.primary)),
+                          )
+                        ],
+                      ),
+              ),
+              const SizedBox(height: 48),
+              
+              TeslaButton(
+                onPressed: _isLoading ? null : _register,
+                isLoading: _isLoading,
+                child: const Text("Complete Registration"),
+              ),
+            ],
+          ),
         ),
       ),
     );

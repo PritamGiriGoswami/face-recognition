@@ -39,6 +39,9 @@ dependencies:
   glassmorphism: ^2.0.0
   mediapipe_face_mesh: ^1.5.0
   web: ^1.1.1
+  tflite_flutter: ^0.12.1
+  google_mlkit_face_detection: ^0.13.2
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:
@@ -47,3 +50,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/models/

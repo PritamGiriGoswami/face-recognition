@@ -3,8 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/api_service.dart';
 import '../widgets/gps_widget.dart';
-import '../theme/lumina.dart';
-import 'admin_login_screen.dart';
+import '../theme/tesla_theme.dart';
 import 'attendance_screen.dart';
 import 'registration_screen.dart';
 import 'student_dashboard_screen.dart';
@@ -19,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? _backendStatus;
   bool _checkingBackend = true;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -42,9 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: TeslaTheme.surfaceHigh,
         title: const Text(
           'Student/Employee Dashboard',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: TeslaTheme.onSurface),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -52,26 +53,23 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const Text(
               'Enter your registered email address to view statistics, calendar heatmap, and daily logs.',
-              style: TextStyle(color: Lumina.onSurfaceVariant, fontSize: 13),
+              style: TextStyle(color: TeslaTheme.onSurfaceVariant, fontSize: 13),
             ),
             const SizedBox(height: 16),
-            TextField(
+            TeslaTextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Registered Email',
-                hintText: 'e.g. employee@company.com',
-                prefixIcon: Icon(Icons.email_outlined),
-              ),
+              labelText: 'Registered Email',
+              prefixIcon: Icons.email_outlined,
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: TeslaTheme.onSurfaceVariant)),
           ),
-          FilledButton(
+          TextButton(
             onPressed: () {
               final email = emailController.text.trim();
               if (email.isEmpty) return;
@@ -83,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             },
-            child: const Text('View Dashboard'),
+            child: const Text('View Dashboard', style: TextStyle(color: TeslaTheme.primary)),
           ),
         ],
       ),
@@ -95,9 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: TeslaTheme.surfaceHigh,
         title: const Text(
           'Backend Server Settings',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: TeslaTheme.onSurface),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -105,35 +104,27 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const Text(
               'Enter the backend server URL or IP address.',
-              style: TextStyle(color: Lumina.onSurfaceVariant, fontSize: 13),
+              style: TextStyle(color: TeslaTheme.onSurfaceVariant, fontSize: 13),
             ),
             const SizedBox(height: 16),
-            TextField(
+            TeslaTextField(
               controller: controller,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Server URL / IP',
-                hintText: 'e.g. 192.168.1.100:8000',
-                prefixIcon: const Icon(Icons.dns),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: controller.clear,
-                ),
-              ),
+              labelText: 'Server URL / IP',
+              prefixIcon: Icons.dns,
             ),
             const SizedBox(height: 8),
             Text(
               'Current active URL: ${ApiService.baseUrl}',
-              style: const TextStyle(fontSize: 12, color: Lumina.tertiary),
+              style: const TextStyle(fontSize: 12, color: TeslaTheme.primary),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: TeslaTheme.onSurfaceVariant)),
           ),
-          FilledButton(
+          TextButton(
             onPressed: () async {
               final newUrl = controller.text.trim();
               try {
@@ -149,8 +140,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content:
-                          Text('Backend URL updated: ${ApiService.baseUrl}'),
+                      content: Text('Backend URL updated: ${ApiService.baseUrl}'),
+                      backgroundColor: TeslaTheme.surfaceHighest,
                     ),
                   );
                 }
@@ -162,154 +153,222 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               }
             },
-            child: const Text('Save'),
+            child: const Text('Save', style: TextStyle(color: TeslaTheme.primary)),
           ),
         ],
       ),
     );
   }
 
-  void _handleNav(BuildContext context, int index) {
-    switch (index) {
-      case 0:
-        break;
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AttendanceScreen()),
-        );
-        break;
-      case 2:
-        _openDashboardDialog(context);
-        break;
-      case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
-        );
-        break;
+  void _handleNav(int index) {
+    setState(() => _selectedIndex = index);
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AttendanceScreen()),
+      ).then((_) {
+        if (mounted) setState(() => _selectedIndex = 0);
+      });
+    } else if (index == 2) {
+      _openDashboardDialog(context);
+      setState(() => _selectedIndex = 0);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: EduTopBar(
+      backgroundColor: TeslaTheme.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('Gurukul', style: TextStyle(fontSize: 20, letterSpacing: 1.2)),
+        centerTitle: true,
         actions: [
           IconButton(
-            tooltip: 'Server Settings',
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.settings_outlined, color: TeslaTheme.onSurfaceVariant),
             onPressed: () => _showSettingsDialog(context),
           ),
-          IconButton(
-            tooltip: 'Notifications',
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
+          const SizedBox(width: 8),
         ],
       ),
-      extendBody: true,
-      bottomNavigationBar: EduBottomNav(
-        selectedIndex: 0,
-        onSelected: (index) => _handleNav(context, index),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: TeslaTheme.surfaceHigh,
+        selectedItemColor: TeslaTheme.onSurface,
+        unselectedItemColor: TeslaTheme.onSurfaceVariant,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _handleNav,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.document_scanner_outlined), label: 'Scan'),
+          BottomNavigationBarItem(icon: Icon(Icons.analytics_outlined), label: 'Stats'),
+        ],
       ),
-      body: LuminaShell(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _ScannerHero(),
-            const SizedBox(height: 28),
-            Text.rich(
-              const TextSpan(
-                text: 'Welcome to ',
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Sleek Header
+              const Text(
+                'Status',
+                style: TextStyle(
+                  color: TeslaTheme.onSurfaceVariant,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'AI System Active',
+                style: TextStyle(
+                  color: TeslaTheme.onSurface,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 48),
+
+              // Actions Header
+              const Text(
+                'Controls',
+                style: TextStyle(
+                  color: TeslaTheme.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Primary Action
+              TeslaCard(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AttendanceScreen()),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: TeslaTheme.surfaceHighest,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.camera_alt_outlined, color: TeslaTheme.onSurface),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Mark Attendance',
+                            style: TextStyle(
+                              color: TeslaTheme.onSurface,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Face ID & AI Verification',
+                            style: TextStyle(
+                              color: TeslaTheme.onSurfaceVariant,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: TeslaTheme.onSurfaceVariant),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Secondary Actions
+              Row(
                 children: [
-                  TextSpan(
-                    text: 'Gurukul School',
-                    style: TextStyle(color: Lumina.primary),
+                  Expanded(
+                    child: TeslaCard(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RegistrationScreen()),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.person_add_outlined, color: TeslaTheme.onSurfaceVariant, size: 28),
+                          SizedBox(height: 16),
+                          Text(
+                            'Register',
+                            style: TextStyle(
+                              color: TeslaTheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  TextSpan(text: ' AI Attendance'),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TeslaCard(
+                      onTap: () => _openDashboardDialog(context),
+                      padding: const EdgeInsets.all(16),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.dashboard_outlined, color: TeslaTheme.onSurfaceVariant, size: 28),
+                          SizedBox(height: 16),
+                          Text(
+                            'Dashboard',
+                            style: TextStyle(
+                              color: TeslaTheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    height: 1.05,
-                  ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Experience frictionless, secure, and intelligent check-ins for the next generation of learners.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Lumina.onSurfaceVariant, fontSize: 16),
-            ),
-            const SizedBox(height: 32),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final desktop = constraints.maxWidth >= 760;
-                return GridView.count(
-                  crossAxisCount: desktop ? 4 : 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: desktop ? 1.35 : 1.05,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    _ActionTile(
-                      title: 'Mark Attendance',
-                      subtitle: 'Face ID scanning & AI verification',
-                      icon: Icons.camera_alt,
-                      primary: true,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AttendanceScreen(),
-                        ),
-                      ),
-                    ),
-                    _ActionTile(
-                      title: 'Register New',
-                      subtitle: 'Onboard students & staff',
-                      icon: Icons.person_add,
-                      accent: Lumina.tertiary,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const RegistrationScreen(),
-                        ),
-                      ),
-                    ),
-                    _ActionTile(
-                      title: 'My Dashboard',
-                      subtitle: 'View your personal logs',
-                      icon: Icons.analytics_outlined,
-                      accent: Lumina.secondary,
-                      onTap: () => _openDashboardDialog(context),
-                    ),
-                    _ActionTile(
-                      title: 'Admin Panel',
-                      subtitle: 'School-wide analytics',
-                      icon: Icons.dashboard,
-                      accent: Lumina.primary,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AdminLoginScreen(),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-            const _LiveFeed(),
-            _BackendStatus(
-              status: _backendStatus,
-              checking: _checkingBackend,
-              onRetry: _checkBackend,
-            ),
-            const GpsWidget(),
-          ],
+              
+              const SizedBox(height: 32),
+              
+              // Recent Activity or Live Feed
+              const Text(
+                'Recent Activity',
+                style: TextStyle(
+                  color: TeslaTheme.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const _LiveFeed(),
+
+              const SizedBox(height: 24),
+              _BackendStatus(
+                status: _backendStatus,
+                checking: _checkingBackend,
+                onRetry: _checkBackend,
+              ),
+              const SizedBox(height: 16),
+              const GpsWidget(),
+            ],
+          ),
         ),
       ),
     );
@@ -336,22 +395,20 @@ class _BackendStatus extends StatelessWidget {
           children: [
             SizedBox(
               width: 12, height: 12,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              child: CircularProgressIndicator(strokeWidth: 2, color: TeslaTheme.primary),
             ),
-            SizedBox(width: 8),
+            SizedBox(width: 12),
             Text('Connecting to server...',
-              style: TextStyle(color: Lumina.onSurfaceVariant, fontSize: 12)),
+              style: TextStyle(color: TeslaTheme.onSurfaceVariant, fontSize: 13)),
           ],
         ),
       );
     }
 
-    if (status == null) {
-      return const SizedBox.shrink();
-    }
+    if (status == null) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: InkWell(
         onTap: onRetry,
         child: Row(
@@ -359,267 +416,20 @@ class _BackendStatus extends StatelessWidget {
             Container(
               width: 8, height: 8,
               decoration: const BoxDecoration(
-                color: Lumina.error, shape: BoxShape.circle,
+                color: TeslaTheme.error, shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             const Expanded(
               child: Text(
                 'Cannot connect to server. Tap to retry.',
-                style: TextStyle(color: Lumina.error, fontSize: 12),
+                style: TextStyle(color: TeslaTheme.error, fontSize: 13),
               ),
             ),
-            const Icon(Icons.refresh, color: Lumina.error, size: 16),
+            const Icon(Icons.refresh, color: TeslaTheme.error, size: 16),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ScannerHero extends StatefulWidget {
-  const _ScannerHero();
-
-  @override
-  State<_ScannerHero> createState() => _ScannerHeroState();
-}
-
-class _ScannerHeroState extends State<_ScannerHero>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 3),
-  )..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 280,
-        height: 280,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                color: Lumina.surfaceHigh,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Lumina.primary.withValues(alpha: 0.15),
-                    blurRadius: 34,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: CustomPaint(
-                  painter: _GridPainter(),
-                  child: AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, child) {
-                      return Stack(
-                        children: [
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            top: 24 + (_controller.value * 190),
-                            child: Container(
-                              height: 2,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.transparent,
-                                    Lumina.tertiary.withValues(alpha: 0.95),
-                                    Colors.transparent,
-                                  ],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color:
-                                        Lumina.tertiary.withValues(alpha: 0.6),
-                                    blurRadius: 12,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-            const _Corner(top: 16, left: 16, topSide: true, leftSide: true),
-            const _Corner(top: 16, right: 16, topSide: true, rightSide: true),
-            const _Corner(
-              bottom: 16,
-              left: 16,
-              bottomSide: true,
-              leftSide: true,
-            ),
-            const _Corner(
-              bottom: 16,
-              right: 16,
-              bottomSide: true,
-              rightSide: true,
-            ),
-            Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Lumina.primary.withValues(alpha: 0.18),
-                border:
-                    Border.all(color: Lumina.primary.withValues(alpha: 0.5)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Lumina.primary.withValues(alpha: 0.28),
-                    blurRadius: 28,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.face_retouching_natural,
-                  color: Lumina.primary, size: 52),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionTile extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final bool primary;
-  final Color accent;
-  final VoidCallback onTap;
-
-  const _ActionTile({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onTap,
-    this.primary = false,
-    this.accent = Lumina.primary,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (primary) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Lumina.primaryContainer, Lumina.primary],
-            ),
-          ),
-          child: _TileContent(
-            title: title,
-            subtitle: subtitle,
-            icon: icon,
-            iconColor: Colors.white,
-            textColor: Colors.white,
-          ),
-        ),
-      );
-    }
-
-    return GlassCard(
-      onTap: onTap,
-      accent: accent,
-      padding: const EdgeInsets.all(18),
-      child: _TileContent(
-        title: title,
-        subtitle: subtitle,
-        icon: icon,
-        iconColor: accent,
-        textColor: Lumina.onSurface,
-      ),
-    );
-  }
-}
-
-class _TileContent extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color iconColor;
-  final Color textColor;
-
-  const _TileContent({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.iconColor,
-    required this.textColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: iconColor, size: 24),
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Expanded(
-                child: Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: textColor.withValues(alpha: 0.72),
-                    fontSize: 11.5,
-                    height: 1.2,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -629,123 +439,30 @@ class _LiveFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    return TeslaCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Row(
         children: [
           Container(
             width: 8,
             height: 8,
             decoration: const BoxDecoration(
-              color: Color(0xFF4ADE80),
+              color: TeslaTheme.primary,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 10),
-          const Text(
-            'LIVE FEED',
-            style: TextStyle(
-              color: Lumina.onSurfaceVariant,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.1,
-            ),
-          ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           const Expanded(
             child: Text(
-              'Aryan K. marked present at 9:01 AM  |  Priya S. verified at Gate 4',
+              'Aryan K. marked present at 9:01 AM',
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Lumina.onSurface, fontSize: 13),
+              style: TextStyle(color: TeslaTheme.onSurface, fontSize: 14),
             ),
           ),
-          const SizedBox(width: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Lumina.surfaceBright,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Text(
-              'AI STABLE',
-              style: TextStyle(
-                color: Lumina.primary,
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.chevron_right, color: TeslaTheme.onSurfaceVariant, size: 20),
         ],
       ),
     );
   }
-}
-
-class _Corner extends StatelessWidget {
-  final double? top;
-  final double? right;
-  final double? bottom;
-  final double? left;
-  final bool topSide;
-  final bool rightSide;
-  final bool bottomSide;
-  final bool leftSide;
-
-  const _Corner({
-    this.top,
-    this.right,
-    this.bottom,
-    this.left,
-    this.topSide = false,
-    this.rightSide = false,
-    this.bottomSide = false,
-    this.leftSide = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: top,
-      right: right,
-      bottom: bottom,
-      left: left,
-      child: Container(
-        width: 34,
-        height: 34,
-        decoration: BoxDecoration(
-          border: Border(
-            top: topSide
-                ? const BorderSide(color: Lumina.tertiary, width: 2)
-                : BorderSide.none,
-            right: rightSide
-                ? const BorderSide(color: Lumina.tertiary, width: 2)
-                : BorderSide.none,
-            bottom: bottomSide
-                ? const BorderSide(color: Lumina.tertiary, width: 2)
-                : BorderSide.none,
-            left: leftSide
-                ? const BorderSide(color: Lumina.tertiary, width: 2)
-                : BorderSide.none,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Lumina.tertiary.withValues(alpha: 0.08)
-      ..strokeWidth = 1;
-    for (double x = 0; x <= size.width; x += 24) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y <= size.height; y += 24) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

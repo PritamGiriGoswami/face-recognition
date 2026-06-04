@@ -211,11 +211,11 @@ class _CameraScreenState extends State<CameraScreen> {
       return 'data:image/jpeg;base64,${base64Encode(bytes)}';
     }
 
-    final resized = decoded.width > 720
+    final resized = decoded.width > 480
         ? img.copyResize(decoded,
-            width: 720, interpolation: img.Interpolation.average)
+            width: 480, interpolation: img.Interpolation.average)
         : decoded;
-    final compressed = img.encodeJpg(resized, quality: 76);
+    final compressed = img.encodeJpg(resized, quality: 50);
     return 'data:image/jpeg;base64,${base64Encode(compressed)}';
   }
 

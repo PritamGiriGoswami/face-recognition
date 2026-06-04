@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/api_service.dart';
-import 'screens/home_screen.dart';
-import 'theme/lumina.dart';
+import 'screens/login_screen.dart';
+import 'theme/tesla_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,10 +34,10 @@ class FaceRecognitionApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Gurukul School Attendance',
-      theme: Lumina.theme(),
-      darkTheme: Lumina.theme(),
+      theme: TeslaTheme.theme(),
+      darkTheme: TeslaTheme.theme(),
       themeMode: ThemeMode.dark,
-      home: const HomeScreen(),
+      home: const LoginScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

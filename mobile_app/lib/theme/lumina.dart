@@ -237,7 +237,6 @@ class EduBottomNav extends StatelessWidget {
       (Icons.home_outlined, 'Home'),
       (Icons.face_outlined, 'Scan'),
       (Icons.history_outlined, 'History'),
-      (Icons.manage_accounts_outlined, 'Admin'),
     ];
 
     return Container(

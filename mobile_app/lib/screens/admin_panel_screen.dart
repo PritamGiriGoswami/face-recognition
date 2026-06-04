@@ -1,3 +1,5 @@
+import 'login_screen.dart';
+import '../theme/tesla_theme.dart';
 import 'dart:convert';
 import 'dart:io' show File;
 import 'dart:typed_data';
@@ -26,6 +28,7 @@ class AdminPanelScreen extends StatefulWidget {
 
 class _AdminPanelScreenState extends State<AdminPanelScreen> {
   late Future<_AdminPanelData> _panelFuture;
+  int _currentIndex = 0;
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
   final _classController = TextEditingController();
@@ -256,7 +259,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       await prefs.remove('admin_token');
       await prefs.remove('admin_email');
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
       }
     }
   }
@@ -427,98 +434,179 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 7,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      backgroundColor: TeslaTheme.surface,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: Container(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 12, 
+            left: 24, 
+            right: 16, 
+            bottom: 12
+          ),
+          decoration: const BoxDecoration(
+            color: TeslaTheme.surface,
+            border: Border(bottom: BorderSide(color: TeslaTheme.surfaceHighest, width: 1)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text('Admin Panel'),
-              Text(
-                widget.email,
-                style: Theme.of(context).textTheme.bodySmall,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Admin Panel', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: TeslaTheme.onSurface, letterSpacing: -0.5)),
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.email,
+                    style: const TextStyle(fontSize: 12, color: TeslaTheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTopIconButton(Icons.filter_list_rounded, _openFilterDialog),
+                  const SizedBox(width: 12),
+                  _buildTopIconButton(Icons.refresh_rounded, _refresh),
+                  const SizedBox(width: 12),
+                  _buildTopIconButton(Icons.logout_rounded, _logout, color: TeslaTheme.error),
+                ],
               ),
             ],
           ),
-          actions: [
-            IconButton(
-              tooltip: 'Filters',
-              onPressed: _openFilterDialog,
-              icon: const Icon(Icons.filter_alt_outlined),
+        ),
+      ),
+      body: FutureBuilder<_AdminPanelData>(
+        future: _panelFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: TeslaTheme.primary));
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Error: ', style: const TextStyle(color: TeslaTheme.error)),
+              ),
+            );
+          }
+          final data = snapshot.data!;
+          final tabs = [
+            _OverviewTab(
+              stats: data.stats,
+              filterSummary: _filterSummary(),
+              onToday: _setTodayFilter,
+              onThisMonth: _setMonthFilter,
             ),
-            IconButton(
-              tooltip: 'Refresh',
-              onPressed: _refresh,
-              icon: const Icon(Icons.refresh),
+            _AttendanceTab(
+              records: data.attendance,
+              filterSummary: _filterSummary(),
+              onExportCsv: () => _exportReport('csv'),
+              onExportPdf: () => _exportReport('pdf'),
+              onExportExcel: () => _exportReport('xlsx'),
             ),
-            IconButton(
-              tooltip: 'Logout',
-              onPressed: _logout,
-              icon: const Icon(Icons.logout),
+            _UsersTab(
+              users: data.users,
+              onEditUser: _editUser,
+              onToggleUserActive: _toggleUserActive,
+              onDeleteUser: _deleteUser,
+              onRefresh: _refresh,
             ),
-          ],
-          bottom: const TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(icon: Icon(Icons.insights), text: 'Overview'),
-              Tab(icon: Icon(Icons.event_available), text: 'Attendance'),
-              Tab(icon: Icon(Icons.people), text: 'Users'),
-              Tab(icon: Icon(Icons.camera_outdoor), text: 'Live Camera'),
-              Tab(icon: Icon(Icons.business), text: 'Organization'),
-              Tab(icon: Icon(Icons.devices), text: 'Devices'),
-              Tab(icon: Icon(Icons.settings), text: 'Settings'),
+            _LiveCameraTab(token: widget.token),
+            _OrganizationTab(token: widget.token),
+            _DevicesTab(token: widget.token),
+            _SettingsTab(token: widget.token),
+          ];
+          return IndexedStack(
+            index: _currentIndex,
+            children: tabs,
+          );
+        },
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 85,
+          decoration: const BoxDecoration(
+            color: TeslaTheme.surface,
+            border: Border(top: BorderSide(color: TeslaTheme.surfaceHighest, width: 1)),
+          ),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            children: [
+              _buildNavItem(0, Icons.insights_rounded, 'Overview'),
+              _buildNavItem(1, Icons.event_available_rounded, 'Attendance'),
+              _buildNavItem(2, Icons.people_alt_rounded, 'Users'),
+              _buildNavItem(3, Icons.camera_outdoor_rounded, 'Camera'),
+              _buildNavItem(4, Icons.business_rounded, 'Organization'),
+              _buildNavItem(5, Icons.devices_rounded, 'Devices'),
+              _buildNavItem(6, Icons.settings_rounded, 'Settings'),
             ],
           ),
-        ),
-        body: FutureBuilder<_AdminPanelData>(
-          future: _panelFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text('Error: ${snapshot.error}'),
-                ),
-              );
-            }
-            final data = snapshot.data!;
-            return TabBarView(
-              children: [
-                _OverviewTab(
-                  stats: data.stats,
-                  filterSummary: _filterSummary(),
-                  onToday: _setTodayFilter,
-                  onThisMonth: _setMonthFilter,
-                ),
-                _AttendanceTab(
-                  records: data.attendance,
-                  filterSummary: _filterSummary(),
-                  onExportCsv: () => _exportReport('csv'),
-                  onExportPdf: () => _exportReport('pdf'),
-                  onExportExcel: () => _exportReport('xlsx'),
-                ),
-                _UsersTab(
-                  users: data.users,
-                  onEditUser: _editUser,
-                  onToggleUserActive: _toggleUserActive,
-                  onDeleteUser: _deleteUser,
-                  onRefresh: _refresh,
-                ),
-                _LiveCameraTab(token: widget.token),
-                _OrganizationTab(token: widget.token),
-                _DevicesTab(token: widget.token),
-                _SettingsTab(token: widget.token),
-              ],
-            );
-          },
         ),
       ),
     );
   }
+
+  Widget _buildTopIconButton(IconData icon, VoidCallback onTap, {Color? color}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: const BoxDecoration(
+          color: TeslaTheme.surfaceHighest,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 20, color: color ?? TeslaTheme.onSurface),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, String label) {
+    final isSelected = _currentIndex == index;
+    return GestureDetector(
+      onTap: () => setState(() => _currentIndex = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCirc,
+        margin: const EdgeInsets.only(right: 12),
+        padding: EdgeInsets.symmetric(horizontal: isSelected ? 20 : 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? TeslaTheme.primary.withOpacity(0.15) : Colors.transparent,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: isSelected ? TeslaTheme.primary.withOpacity(0.3) : Colors.transparent,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? TeslaTheme.primary : TeslaTheme.onSurfaceVariant,
+              size: 24,
+            ),
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: TeslaTheme.primary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );  }
 }
 
 class _OverviewTab extends StatelessWidget {
